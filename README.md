@@ -1,6 +1,16 @@
 # Multicloud-nginx-deployment-capstone-project
 This project consist of source code of multi cloud nginx deployment with custom webpage using jenkins cicd pipeline.
 
+Below is the architecture diagram of this project which demonstrate the overall multi cloud infrastructure components involved, data flow and failover.
+
+### Scenario 1:
+
+<img width="794" alt="image" src="https://github.com/user-attachments/assets/ba03343b-f464-4b75-af1b-ba5f696b0761" />
+
+### Scenario 2:
+
+<img width="791" alt="image" src="https://github.com/user-attachments/assets/508489b9-2aaf-4d13-8238-1f6979a09280" />
+
 
 ## Step 1: Deploy Infra on both aws and azure cloud platform.
 	
