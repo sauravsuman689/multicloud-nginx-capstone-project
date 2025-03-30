@@ -1,0 +1,28 @@
+---
+- name: Install,enable and verify Nginx service
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Nginx on the remote servers
+      apt:
+        name: nginx
+        state: present
+
+    - name: Ensure Nginx service is enabled to start at boot
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Check Nginx service status
+      command: systemctl is-active nginx
+      register: nginx_status
+      ignore_errors: yes
+
+    - name: Display Nginx service status
+      debug:
+        msg: "Nginx service is {{ nginx_status.stdout }}"

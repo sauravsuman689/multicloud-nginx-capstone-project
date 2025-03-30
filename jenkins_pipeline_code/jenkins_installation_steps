@@ -1,0 +1,22 @@
+#updating the system
+sudo apt-get update -y && sudo apt-get upgrade -y
+
+#Install Java
+apt-get install -y wget unzip openjdk-17-jdk
+
+#For the Debian package repository of Jenkins
+sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
+  https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+
+#Add the Jenkins apt repository entry
+echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+#Update your local package index, then finally install Jenkins:
+  sudo apt-get update
+  sudo apt-get install jenkins
+  systemctl status jenkins
+
+#Note down the initial password
+cat /var/lib/jenkins/secrets/initialAdminPassword

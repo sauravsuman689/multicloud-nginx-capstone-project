@@ -1,0 +1,53 @@
+---
+- name: Update with custom index file on remote servers
+  hosts: aws_nginx_app_vm
+  become: yes
+  tasks:
+    - name: Copy the aws index-aws.html file to /var/www/html/
+      copy:
+        src: "/root/capstone-ansible/index-aws.html"
+        dest: "/var/www/html/index-aws.html"
+        owner: "root"
+        group: "root"
+        mode: "0644"
+      tags:
+        - aws_vm
+    - name: Add index-aws.html in the /etc/nginx/sites-available/default under index section
+      lineinfile:
+        path: /etc/nginx/sites-available/default
+        line: "index index-aws.html;"
+        insertafter: "^.*root /var/www/html.*$"
+
+- name: Update with custom index file on remote servers
+  hosts: azure_nginx_app_vm
+  become: yes
+  tasks:
+    - name: Copy the azure index-azure.html file to /var/www/html/
+      copy:
+        src: "/root/capstone-ansible/index-azure.html"
+        dest: "/var/www/html/index-azure.html"
+        owner: "root"
+        group: "root"
+        mode: "0644"
+      tags:
+        - azure_vm
+
+    - name: Add index-azure.html in the /etc/nginx/sites-available/default under index section
+      lineinfile:
+        path: /etc/nginx/sites-available/default
+        line: "index index-azure.html;"
+        insertafter: "^.*root /var/www/html.*$"
+
+- name: Restart Nginx service of remote servers
+  hosts: all
+  become: yes
+  tasks:
+    - name: Delete the existing default nginx file from remote server under /var/www/html/
+      file:
+        path: /var/www/html/index.nginx-debian.html
+        state: absent
+
+    - name: Restart Nginx service
+      service:
+        name: nginx
+        state: restarted

@@ -1,0 +1,10 @@
+---
+- name: Ping both the remote vms and get response
+  hosts: all
+  tasks:
+    - name: Ping the remote VM
+      ping:
+
+    - name: Respond with Pong
+      debug:
+        msg: "Pong"

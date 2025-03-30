@@ -1,0 +1,85 @@
+pipeline {
+    agent any  // Runs on any available Jenkins agent
+
+    environment {
+        GITHUB_REPO = 'https://github.com/sauravsuman689/multicloud-nginx-capstone-project.git'  // GitHub repository URL having the code
+        BRANCH = 'main'  // Github branch to pull the code from
+        AWS_REMOTE_SERVER = '98.81.100.47'  // Aws remote server IP address
+        AZURE_REMOTE_SERVER = '52.179.126.20' // Azure remote server IP address
+        SSH_USER = 'root'  // SSH user having passwordless access to remote servers
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                script {
+                    // Checkout the GitHub repository
+                    git branch: "${BRANCH}", url: "${GITHUB_REPO}"
+                }
+            }
+        }
+
+        stage('Deploy Files') {
+            parallel {
+                stage('Deploy AWS File') {
+                    steps {
+
+                            script {
+                                // Deploy index-aws.html to /var/www/html/index-aws.html on the aws remote server
+                                sh """
+
+                                    ssh-keyscan -H ${AWS_REMOTE_SERVER} >> /var/lib/jenkins/.ssh/known_hosts
+                                    scp -o StrictHostKeyChecking=no custom-nginx-webpage/index-aws.html ${SSH_USER}@${AWS_REMOTE_SERVER}:/var/www/html/index-aws.html
+                                """
+                            }
+
+                    }
+                }
+
+                stage('Deploy Azure File') {
+                    steps {
+
+                            script {
+                                // Deploy index-azure.html to /var/www/html/index-azure.html on the azure remote server
+                                sh """
+
+                                    ssh-keyscan -H ${AZURE_REMOTE_SERVER} >> /var/lib/jenkins/.ssh/known_hosts
+                                    scp -o StrictHostKeyChecking=no custom-nginx-webpage/index-azure.html ${SSH_USER}@${AZURE_REMOTE_SERVER}:/var/www/html/index-azure.html
+                                """
+                            }
+
+                    }
+                }
+            }
+        }
+
+        stage('Restart Nginx') {
+            steps {
+
+                    script {
+                        // Restart Nginx on the remote servers
+                        sh """
+                            ssh-keyscan -H ${AWS_REMOTE_SERVER} >> /var/lib/jenkins/.ssh/known_hosts
+                            ssh -o StrictHostKeyChecking=no ${SSH_USER}@${AWS_REMOTE_SERVER} 'sudo systemctl restart nginx'
+
+                        """
+                        sh """
+                            ssh-keyscan -H ${AZURE_REMOTE_SERVER} >> /var/lib/jenkins/.ssh/known_hosts
+                            ssh -o StrictHostKeyChecking=no ${SSH_USER}@${AZURE_REMOTE_SERVER} 'sudo systemctl restart nginx'
+
+                        """
+                    }
+
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Deployment and Nginx restart are successful!'
+        }
+        failure {
+            echo 'Deployment or Nginx restart failed!'
+        }
+    }
+}
